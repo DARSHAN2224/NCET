@@ -1,0 +1,26 @@
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/js/datatables.min.css" />
+<script type="text/javascript" src="/js/datatables.min.js"></script>
+<script type="text/javascript">
+   $(document).ready(function () {
+      $('#dataTable').DataTable();
+      rowReorder: true
+   });
+
+   document.addEventListener('DOMContentLoaded', function () {
+      const messageBox = document.getElementById('message-box');
+      if (messageBox) {
+         setTimeout(() => {
+            messageBox.style.transition = 'opacity 1s ease';
+            messageBox.style.opacity = '0';
+            setTimeout(() => {
+               messageBox.style.display = 'none';
+            }, 1000);
+         }, 5000);
+      }
+   });
+</script>
+</body>
+
+</html>

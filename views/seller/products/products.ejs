@@ -1,0 +1,62 @@
+<%- include('../common/header') %>
+<div class="col-lg-10">
+
+   <div class="dashboard-content-area">
+      <!-- put your contente -->
+
+      <h1>All products</h1>
+      <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+         <thead>
+            <tr>
+               <th>Image</th>
+               <th>Name</th>
+               <th>Price</th>
+               <th>Discount</th>
+               <th>Available</th>
+               <th>Stock</th>
+               <th>Operations</th>
+            </tr>
+         </thead>
+         <tbody>
+            <%
+               if(products.length>0)
+               {
+                  for(let i=0;i< products.length; i++){ %>
+                     <tr>
+                       <% if(products[i].image){%>
+                           <td><img src="/Productimages/<%= products[i].image%>"  width="100px" height="100px" alt="<%= products[i].image%>"></td>
+                      <%  }else{%>
+                           <td><img src="/imagesStore/image.png"  width="100px" height="100px" alt="<%= products[i].image%>"></td>
+                       <% } %>
+                        <td><%= products[i].name %></td>
+                        <td>Rs.<%= products[i].price %></td>
+                        <td><%= products[i].discount %> % </td>
+                        <td><%= products[i].available %></td>
+                        <td><%= products[i].stock %></td>
+                        <td> <a class="btn btn-primary" href="/seller/editproducts?id=<%= products[i]._id %>">Edit</a>
+                           <form style="display: inline;" action="/seller/deleteproducts/<%= products[i]._id %>?_method=DELETE" method="POST">
+                              <button style="cursor: pointer;" type="submit" class="btn btn-danger ml-2">Delete</button>
+                           </form>
+                        </td>
+                 <% }
+               }
+               else{ %>
+                  <td colspan="6"> Product Not Found</td>
+            <%
+               }
+            %>      
+            </tr>
+         </tbody>
+      </table>
+
+
+      <center> <br> <a class="btn btn-success btn-md" href="/seller/addproducts/">Add More products</a> </center>
+
+
+      <!-- end your content here -->
+   </div>
+
+</div>
+</div>
+</div>
+<%- include('../common/footer') %>

@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link rel="stylesheet" href="/assets/css/cart.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .cart-item {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 1rem 0;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item h3 {
+            margin: 0 0 0.5rem;
+        }
+
+        .cart-item p {
+            margin: 0;
+            color: #666;
+        }
+
+        .checkout-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .checkout-btn:hover {
+            background-color: #45a049;
+        }
+
+        .empty-cart {
+            text-align: center;
+            color: #666;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          
+          th, td {
+            padding: 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+          }
+          
+          tfoot td {
+            font-weight: bold;
+          }
+          
+          button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+          }
+          
+          button:hover {
+            background-color: #218838;
+          }
+          
+    </style>
+</head>
+<body>
+  <h1>Your Cart</h1>
+
+  <% if (cart.totalQty > 0) { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% cart.items.forEach(item => { %>
+          <tr>
+            <td><%= item.productId.name %></td>
+            <td><%= item.qty %></td>
+            <td>$<%= item.productId.price.toFixed(2) %></td>
+            <td>$<%= (item.qty * item.productId.price).toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">Total Quantity</td>
+          <td><%= cart.totalQty %></td>
+        </tr>
+        <tr>
+          <td colspan="3">Total Cost</td>
+          <td>$<%= cart.totalCost.toFixed(2) %></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <form action="/checkout" method="POST">
+      <button type="submit">Proceed to Checkout</button>
+    </form>
+  <% } else { %>
+    <p>Your cart is empty.</p>
+  <% } %>
+
+</body>
+
+</html>
+

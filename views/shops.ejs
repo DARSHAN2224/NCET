@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shops</title>
+
+
+    <link rel="stylesheet" href="/assets/css/menu.css">
+
+    <link rel=" preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Rubik:wght@400;500;600;700&family=Shadows+Into+Light&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body id="top">
+
+
+    <header class="header" data-header>
+        <div class="container">
+            <h1>
+                <a href="#" class="logo">Foodie<span class="span">.</span></a>
+            </h1>
+            <div class="header-btn-group">
+                <button class="search-btn" aria-label="Search" data-search-btn>
+                    <input type="text">
+                    <ion-icon name="search-outline"></ion-icon>
+                </button>
+                <button class="cart-btn" aria-label="Cart">
+                    <a href="/cart"> 
+                      <span class="cart-counts" id="cart-count">0</span>
+                      <ion-icon name="cart-outline"></ion-icon>
+                    </a>
+                  </button>
+                  
+                    </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="section food-menu" id="food-menu">
+        <div class="container">
+            <% shops.forEach(product => { %>
+                <ul class="food-menu-list">
+                    <li>
+                        <div class="food-menu-card">
+                            <div class="card-banner">
+                                <% if(product.image){%>
+                                    <img src="/Productimages/<%= product.image%>"  loading="lazy"  alt="<%= product.image%>" class="w-100">
+                               <%  }else{%>
+                                 <img src="/imagesStore/image.png"  loading="lazy" alt="<%= product.image%>" class="w-100">
+                                <% } %> 
+                                <div class="badge">-<%= product.discount%>%</div>
+                            </div>
+    
+                            <h3 class="h3 card-title"><%= product.shopId.name%></h3>
+                            <h3 class="h3 card-title"><%= product.name%></h3>
+                            <div class="price-wrapper">
+                                <p class="price-text">Price: </p>
+                                <data class="price"> <%= product.price%></data>
+                            </div>
+                            <div class="price-wrapper">
+                                <p class="price-text">Available: </p>
+                               <% if(product.available==true) {%>
+                                <data class="price"> Yes</data>
+                              <% } else {%>
+                                <data class="price"> No</data>
+                              <% } %>
+                            </div>
+                            <div class="price-wrapper">
+                                <p class="price-text">Stock: </p>
+                                <data class="price"> <%= product.stock%></data>
+                            </div>
+                            <div class="btn">
+                                <form action="/cart/<%= product._id %>" method="POST" class="add-to-cart-form">
+                                    <button style="cursor: pointer;" type="submit" class="add-to-cart-btn">Add to Cart</button>
+                                  </form>                       
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            <% }); %>
+        </div>
+    </section>
+
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script>
+    document.querySelectorAll('.add-to-cart-form').forEach(form => {
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+    
+          const actionUrl = form.action;
+          const formData = new FormData(form);
+    
+          try {
+            const response = await fetch(actionUrl, {
+              method: 'POST',
+              body: formData
+            });
+    
+            if (response.ok) {
+              const result = await response.json();
+    
+              // Update the cart count
+              const cartCountElement = document.getElementById('cart-count');
+              cartCountElement.textContent = result.cart.totalQty;
+    
+              alert('Product added to cart!');
+            } else {
+              console.error('Failed to add product to cart');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+          }
+        });
+      });
+    </script>
+
+    <script>
+        async function updateCartCount() {
+          try {
+            const response = await fetch('/cart-count');
+            const data = await response.json();
+            document.getElementById('cart-count').textContent = data.totalQty;
+          } catch (error) {
+            console.error('Failed to fetch cart count', error);
+          }
+        }
+      
+        // Fetch cart count when the page loads
+        window.onload = updateCartCount;
+      </script>
+</body>
+
+</html>

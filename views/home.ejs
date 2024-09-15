@@ -1,0 +1,93 @@
+<%- include('./layouts/header') %>
+
+    <section id="search">
+        <div class="search-box">
+            <input type="text" placeholder="Search for food, drinks...">
+            <span class="search-icon">&#x1F50D;</span>
+        </div>
+    </section>
+    <section id="offers">
+        <h2>Special Offers</h2>
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+               
+                    <%
+                    if(offers.length>0)
+                    {
+                       for(let i=0;i< offers.length; i++){ %>
+                        <div class="swiper-slide">
+                                <img src="/Productimages/<%= offers[i].image%>"    alt="<%= offers[i].image%>">
+                        </div>
+                     <% }
+                         
+                    }%>
+               
+            </div>
+            <!-- Pagination (dots) -->
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+    <section id="best-selling">
+        <h2>Best Selling</h2>
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <div class="best-selling-card">
+                        <img src="best1.jpg" alt="Best Selling 1">
+                        <div class="best-selling-card-content">
+                            <h3>Best Seller 1</h3>
+                            <p>Description of Best Seller 1</p>
+                            <button class="add-to-cart-btn">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            <!-- Pagination (dots) -->
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+    <section id="shops">
+        <h2>Available Shops</h2>
+        <div class="available-shops">
+        <%
+        if(shops.length>0)
+        {
+           for(let i=0;i< shops.length; i++){ %>
+                <div class="shop-card">
+                    <img src="/Productimages/<%= shops[i].image%>"  height="50px" width="50px"  alt="<%= shops[i].image%>">
+                    <div class="shop-card-content">
+                        <h3><%= shops[i].name%></h3>
+                        <p><%= shops[i].description%></p>
+                        <a href="/shops/<%= shops[i]._id%>">
+                        <button  class="menu-btn">Menu</button></a>
+                    </div>
+                </div>
+         <% }
+             
+        }%>
+        </div>
+    </section>
+    <section id="contact-details">
+        <h2>Contact Us</h2>
+        <p>For any queries, reach out to us at:</p>
+        <p>Email: info@collegefoodcourt.com</p>
+        <p>Phone: +123 456 7890</p>
+    </section>
+
+  <%- include('./layouts/footer') %>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

@@ -1,0 +1,12 @@
+<%- include('./layouts/header') %>
+<link rel="stylesheet" href="/assets/css/login.css" />
+<div class="container">
+  <h2 id="form-title">forget password email</h2>
+    <p style="color: green"><%= msg %></p>
+  <form id="forget-form" method="post">
+    <input type="email" id="email" name="email" placeholder="Email" required />
+    <button type="submit">reset password</button>
+  </form>
+</div>
+
+<%- include('./layouts/footer') %>

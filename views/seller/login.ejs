@@ -1,0 +1,29 @@
+<%- include('../user/layouts/header') %>
+<link rel="stylesheet" href="/assets/css/login.css">
+
+<div class="container">
+  <h2 id="form-title">Seller Login</h2>
+  <p style="color: green"><%= msg %></p>
+  <form id="login-form" action="/seller/login" method="post">
+    <input type="email" id="email" name="email" placeholder="Email" required />
+    <input
+      type="password"
+      id="password"
+      name="password"
+      placeholder="Password"
+      required
+    />
+    <% if(typeof csrfToken!='undefined'){ %>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <% } %>
+    <button type="submit">Login</button>
+  </form>
+  <div class="toggle">
+    <a href="/forget">forgot password?</a><br>
+    <% if(typeof sellerData!="undefined" && sellerData && sellerData.is_verified==0){ %>
+    <a href="/verification">verification</a>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../user/layouts/footer') %>

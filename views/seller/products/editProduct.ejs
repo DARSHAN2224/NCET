@@ -1,0 +1,77 @@
+<%- include('../common/header') %>
+
+<% if (typeof success !== 'undefined') { %>
+   <div id="message-box" class="message-box-overlay <%= success === 'true' ? 'alert alert-success' : 'alert alert-danger'%>">
+     <%= msg %>
+   </div>
+ <% } %>
+ 
+<div class="col-lg-10">
+
+   <div class="dashboard-content-area">
+      <!-- put your contente -->
+
+      <h1 class="mb-2 mt-2">Edit Product</h1>
+
+      <form method="post" action="/seller/editproducts" enctype="multipart/form-data">
+        <div class="mb-3 mt-3 row g-9 align-items-center">
+            <input type="hidden" name="id" value="<%= productData._id %>">
+         </div>
+
+         <div class="mb-3 mt-3 row g-9 align-items-center">
+            <div class="col col-lg-2"><label class="form-label">Name</label></div>
+            <div class="col"><input type="text" name="name" class="form-control" placeholder="Product Name" value="<%= productData.name%>"></div>
+         </div>
+
+         <div class="mb-3 mt-3 row g-9 align-items-center">
+            <div class="col col-lg-2"><label class="form-label">Description</label></div>
+            <div class="col"><input type="text" name="description" class="form-control" value="<%= productData.description%>"
+                  placeholder="Description"></div>
+         </div>
+
+         <div class="mb-3 mt-3 row g-9 align-items-center">
+            <div class="col col-lg-2"><label class="form-label">Price</label></div>
+            <div class="col"><input type="text" name="price" class="form-control" value="<%= productData.price%>"
+                  placeholder="Price"></div>
+         <div class="mb-3 mt-3 row g-9 align-items-center">
+               <div class="col col-lg-2"><label class="form-label">Discount</label></div>
+               <div class="col"><input type="text" name="discount" class="form-control"
+                  placeholder="Discount" value="<%= productData.discount%>"></div>
+         </div>
+                  <!-- Available Status Radio Buttons -->
+                  <div class="mb-3 mt-3 row g-9 align-items-center">
+                    <div class="col col-lg-2"><label class="form-label">Available</label></div>
+                    <div class="col">
+                       <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="available" id="availableYes" value="yes" <%= productData.available === true ? 'checked' : '' %>>
+                          <label class="form-check-label" for="availableYes">Yes</label>
+                       </div>
+                       <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="available" id="availableNo" value="no" <%= productData.available === false ? 'checked' : '' %>>
+                          <label class="form-check-label" for="availableNo">No</label>
+                       </div>
+                    </div>
+                 </div>
+         <div class="mb-3 mt-3 row g-9 align-items-center">
+            <div class="col col-lg-2"><label class="form-label">Stock</label></div>
+            <div class="col"><input type="text" name="stock" class="form-control" placeholder="Stock" value="<%= productData.stock%>"> 
+            </div>
+         </div>
+
+         <div class="mb-3 mt-3 row g-9 align-items-center">
+            <div class="col col-lg-2"><label class="form-label">Photo</label></div>
+            <div class="col"><input type="file" name="image" class="form-control"></div>
+         </div>
+
+         <div class="mb-5 mt-3 align-items-center text-center">
+            <button type="submit" class="btn btn-primary">Submit</button>
+         </div>
+      </form>
+
+      <!-- end your content here -->
+   </div>
+
+</div>
+</div>
+</div>
+<%- include('../common/footer') %>

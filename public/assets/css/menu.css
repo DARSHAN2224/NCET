@@ -1,0 +1,206 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style-type: none;
+}
+
+h1, h3 {
+    font-family: 'Rubik', sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
+}
+
+.header .logo {
+    font-size: 2rem;
+    font-family: 'Shadows Into Light', cursive;
+    color: #ff6347;
+}
+
+.header-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-btn-group .cart-btn,
+.header-btn-group .search-btn {
+    margin-left: auto;
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.cart-btn{
+    position: relative;
+}
+
+.cart-counts {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 0.2rem 0.2rem;
+    font-size: 0.8rem;
+    }
+
+.header-btn-group .cart-btn {
+    margin-left: 10px;
+}
+
+.section {
+    margin: 50px 0;
+}
+
+/* Food Menu Styles */
+.food-menu-list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 20px;
+}
+
+.food-menu-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 100%; /* Make the cards take up full width */
+    max-width: 300px; 
+    min-width: 300px;/* Optional: Set a max width if needed */
+    margin: 0 auto; /* Center each card horizontally */
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.food-menu-card:hover {
+    transform: translateY(-10px);
+}
+
+.card-banner {
+    /* position:absolute; */
+    text-align: center;
+}
+
+.card-banner img {
+    width: 100%;
+    padding: 25px;
+    border-radius: 20%;
+   
+    height: 250px;
+    display: block;
+}
+
+.badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ff6347;
+    color: #fff;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+}
+
+.h3.card-title {
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.price-wrapper {
+    display: flex;
+   gap: 20px;
+    padding: 0 15px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.price-text {
+    font-weight: bold;
+}
+
+.price {
+    font-size: 1.5rem;
+    color: #ff6347;
+}
+
+.availbtn {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.availbtn button {
+    background-color: #ff6347;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.availbtn button:hover {
+    background-color: #ff2a00;
+}
+
+.add-to-cart-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    align-content: center;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #45a049;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .food-menu-list {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.btn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 40px;
+}

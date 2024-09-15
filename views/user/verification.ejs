@@ -1,0 +1,18 @@
+<%- include('./layouts/footer') %>
+
+<link rel="stylesheet" href="/assets/css/login.css" />
+<div class="container">
+  <h2 id="verify">Verification</h2>
+  <center>
+    <% if(typeof msg!='undefined'){ %>
+    <p style="color: green"><%= msg %></p>
+    <% } %>
+  </center>
+
+  <form id="forget-form" method="post">
+    <input type="email" id="email" name="email" placeholder="Email" required />
+    <button type="submit">verify email</button>
+  </form>
+</div>
+
+<%- include('./layouts/footer') %>

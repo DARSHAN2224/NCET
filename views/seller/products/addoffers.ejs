@@ -1,0 +1,31 @@
+<%- include('../common/header') %>
+<div class="col-lg-10">
+
+   <div class="dashboard-content-area">
+      <!-- put your contente -->
+
+      <h1 class="mb-2 mt-2">Add Offers</h1>
+
+      <form method="post" action="/seller/addoffers" enctype="multipart/form-data">
+
+         <div class="mb-3 mt-3 row g-9 align-items-center">
+            <input type="hidden" name="shopId" value="<%= shop._id %>">
+         </div>
+
+         <div class="mb-3 mt-3 row g-9 align-items-center">
+            <div class="col col-lg-2"><label class="form-label">Photo</label></div>
+            <div class="col"><input type="file" name="image" class="form-control"></div>
+         </div>
+
+         <div class="mb-5 mt-3 align-items-center text-center">
+            <button type="submit" class="btn btn-primary">Submit</button>
+         </div>
+      </form>
+
+      <!-- end your content here -->
+   </div>
+
+</div>
+</div>
+</div>
+<%- include('../common/footer') %>

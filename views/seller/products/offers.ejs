@@ -1,0 +1,51 @@
+<%- include('../common/header') %>
+<div class="col-lg-10">
+
+   <div class="dashboard-content-area">
+      <!-- put your contente -->
+
+      <h1>All Offers</h1>
+     
+      <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+         <thead>
+            <tr>
+               <th>Image</th>
+               <th>Operations</th>
+            </tr>
+         </thead>
+         <tbody>
+           
+               <%
+               if(offers.length>0)
+               {
+                  for(let i=0;i< offers.length; i++){ %>
+                     <tr>
+                     <td><img src="/Productimages/<%= offers[i].image%>"  width="100px" height="100px" alt="<%= offers[i].image%>"></td>
+                     <td>
+                        <form style="display: inline;" action="/seller/delete-offer/<%= offers[i]._id %>?_method=DELETE" method="POST">
+                           <button style="cursor: pointer;" type="submit" class="btn btn-danger ml-2">Delete</button>
+                        </form>
+                     </td>
+                 <% }
+               }
+               else{ %>
+                  <td colspan="2"> Product Not Found</td>
+            <%
+               }
+            %>      
+
+            </tr>
+         </tbody>
+      </table>
+
+
+      <center> <br> <a class="btn btn-success btn-md" href="/seller/addoffers/">Add More offers</a> </center>
+
+
+      <!-- end your content here -->
+   </div>
+
+</div>
+</div>
+</div>
+<%- include('../common/footer') %>
