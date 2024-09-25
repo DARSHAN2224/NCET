@@ -15,46 +15,46 @@
 
       <form method="post" action="/seller/editproducts" enctype="multipart/form-data">
         <div class="mb-3 mt-3 row g-9 align-items-center">
-            <input type="hidden" name="id" value="<%= productData._id %>">
+            <input type="hidden" name="id" value="<%= shop._id %>">
          </div>
 
          <div class="mb-3 mt-3 row g-9 align-items-center">
             <div class="col col-lg-2"><label class="form-label">Name</label></div>
-            <div class="col"><input type="text" name="name" class="form-control" placeholder="Product Name" value="<%= productData.name%>"></div>
+            <div class="col"><input type="text" name="name" class="form-control" placeholder="Product Name" value="<%= shop.name%>"></div>
          </div>
 
          <div class="mb-3 mt-3 row g-9 align-items-center">
             <div class="col col-lg-2"><label class="form-label">Description</label></div>
-            <div class="col"><input type="text" name="description" class="form-control" value="<%= productData.description%>"
+            <div class="col"><input type="text" name="description" class="form-control" value="<%= shop.description%>"
                   placeholder="Description"></div>
          </div>
 
          <div class="mb-3 mt-3 row g-9 align-items-center">
             <div class="col col-lg-2"><label class="form-label">Price</label></div>
-            <div class="col"><input type="text" name="price" class="form-control" value="<%= productData.price%>"
+            <div class="col"><input type="text" name="price" class="form-control" value="<%= shop.price%>"
                   placeholder="Price"></div>
          <div class="mb-3 mt-3 row g-9 align-items-center">
                <div class="col col-lg-2"><label class="form-label">Discount</label></div>
                <div class="col"><input type="text" name="discount" class="form-control"
-                  placeholder="Discount" value="<%= productData.discount%>"></div>
+                  placeholder="Discount" value="<%= shop.discount%>"></div>
          </div>
                   <!-- Available Status Radio Buttons -->
                   <div class="mb-3 mt-3 row g-9 align-items-center">
                     <div class="col col-lg-2"><label class="form-label">Available</label></div>
                     <div class="col">
                        <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="available" id="availableYes" value="yes" <%= productData.available === true ? 'checked' : '' %>>
+                          <input class="form-check-input" type="radio" name="available" id="availableYes" value="yes" <%= shop.available === true ? 'checked' : '' %>>
                           <label class="form-check-label" for="availableYes">Yes</label>
                        </div>
                        <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="available" id="availableNo" value="no" <%= productData.available === false ? 'checked' : '' %>>
+                          <input class="form-check-input" type="radio" name="available" id="availableNo" value="no" <%= shop.available === false ? 'checked' : '' %>>
                           <label class="form-check-label" for="availableNo">No</label>
                        </div>
                     </div>
                  </div>
          <div class="mb-3 mt-3 row g-9 align-items-center">
             <div class="col col-lg-2"><label class="form-label">Stock</label></div>
-            <div class="col"><input type="text" name="stock" class="form-control" placeholder="Stock" value="<%= productData.stock%>"> 
+            <div class="col"><input type="text" name="stock" class="form-control" placeholder="Stock" value="<%= shop.stock%>"> 
             </div>
          </div>
 

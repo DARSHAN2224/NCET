@@ -361,7 +361,7 @@ const loadEditProducts= async (req,res) => {
     }
     // console.log("load user ",user);
     const msg = req.flash('msg');
-    res.render('seller/products/editProduct',{productData,msg});
+    res.render('seller/products/editProduct',{shop:productData,msg});
   } catch (error) {
     console.log("nice6 ",error.message);  }
 }
@@ -736,7 +736,8 @@ const getCustomerOrdersHistory = async (req, res) => {
         "shops.status": { $in: ['arrived', 'preparing', 'ready','cancelled','delivered'] } // Fetch orders with these statuses
       })
       .populate('shops.products.productId') // Populate productId in shops.products
-      .populate('shops.shopId');
+      .populate('shops.shopId')
+      .populate('user');
       
       // Render the orders.ejs view with the fetched orders
       res.render('seller/orderHistory', { orders});

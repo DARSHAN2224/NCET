@@ -19,6 +19,7 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <strong>Order Token: <%= order.orderToken %></strong>
+                        <strong>User Name: <%= order.user.name %></strong>
                         <p class="text-muted">Placed on: <%= new Date(order.createdAt).toLocaleString() %></p>
                     </div>
                     <div class="card-body">
