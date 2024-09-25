@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,142 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart</title>
     <link rel="stylesheet" href="/assets/css/cart.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            padding: 20px;
-        }
-
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .cart-item {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin: 1rem 0;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .cart-item img {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            margin-right: 1rem;
-        }
-
-        .cart-item-details {
-            flex: 1;
-        }
-
-        .cart-item h3 {
-            margin: 0 0 0.5rem;
-        }
-
-        .cart-item p {
-            margin: 0;
-            color: #666;
-        }
-
-        .checkout-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .checkout-btn:hover {
-            background-color: #45a049;
-        }
-
-        .empty-cart {
-            text-align: center;
-            color: #666;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-          }
-          
-          th, td {
-            padding: 12px;
-            border: 1px solid #ccc;
-            text-align: center;
-          }
-          
-          tfoot td {
-            font-weight: bold;
-          }
-          
-          button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            cursor: pointer;
-          }
-          
-          button:hover {
-            background-color: #218838;
-          }
-          
-    </style>
 </head>
 <body>
-  <h1>Your Cart</h1>
+    <h1>Your Cart</h1>
 
-  <% if (cart.totalQty > 0) { %>
+    <% if (cart.totalQty > 0) { %>
     <table>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Quantity</th>
-          <th>Price</th>
-          <th>Subtotal</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% cart.items.forEach(item => { %>
-          <tr>
-            <td><%= item.productId.name %></td>
-            <td><%= item.qty %></td>
-            <td>$<%= item.productId.price.toFixed(2) %></td>
-            <td>$<%= (item.qty * item.productId.price).toFixed(2) %></td>
-          </tr>
-        <% }) %>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="3">Total Quantity</td>
-          <td><%= cart.totalQty %></td>
-        </tr>
-        <tr>
-          <td colspan="3">Total Cost</td>
-          <td>$<%= cart.totalCost.toFixed(2) %></td>
-        </tr>
-      </tfoot>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% cart.items.forEach(item => { %>
+            <tr id="cart-item-<%= item.productId._id %>">
+                <td><%= item.productId.name %></td>
+                <td>
+                    <button class="quantity-btn" onclick="updateQuantity('<%= item.productId._id %>', 'decrease')">&lt;</button>
+                    <span id="quantity-<%= item.productId._id %>"><%= item.quantity %></span>
+                    <button class="quantity-btn" onclick="updateQuantity('<%= item.productId._id %>', 'increase')">&gt;</button>
+                </td>
+                <td>$<%= item.productId.price.toFixed(2) %></td>
+                <td id="subtotal-<%= item.productId._id %>">$<%= (item.quantity * item.productId.price).toFixed(2) %></td>
+                <td>
+                    <button onclick="deleteItem('<%= item.productId._id %>')">Remove</button>
+                </td>
+            </tr>
+            <% }) %>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3">Total Quantity</td>
+                <td id="totalQty"><%= cart.totalQty %></td>
+            </tr>
+            <tr>
+                <td colspan="3">Total Cost</td>
+                <td id="totalCost">$<%= cart.totalCost.toFixed(2) %></td>
+            </tr>
+        </tfoot>
     </table>
 
-    <form action="/checkout" method="POST">
-      <button type="submit">Proceed to Checkout</button>
-    </form>
-  <% } else { %>
-    <p>Your cart is empty.</p>
-  <% } %>
+        <button type="submit" onclick="checkAvailability()">Proceed to Checkout</button>
+    <% } else { %>
+        <p>Your cart is empty.</p>
+    <% } %>
+
+    <script>
+        async function updateQuantity(productId, action) {
+            try {
+                const response = await fetch('/cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        productId: productId,
+                        action: action
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update the quantity and subtotal dynamically
+                    document.getElementById(`quantity-${productId}`).innerText = data.newQuantity;
+                    document.getElementById(`subtotal-${productId}`).innerText = `$${data.newSubtotal.toFixed(2)}`;
+
+                    // Update the total quantity and total cost
+                    document.getElementById('totalQty').innerText = data.totalQty;
+                    document.getElementById('totalCost').innerText = `$${data.totalCost.toFixed(2)}`;
+                } else {
+                    alert('Error updating cart');
+                }
+            } catch (error) {
+                console.error('Error updating quantity:', error);
+            }
+        }
+
+        async function deleteItem(productId) {
+            try {
+                const response = await fetch('/cart', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId: productId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Remove the cart item from the DOM
+                  // Show success message
+                    const cartItem = document.getElementById(`cart-item-${productId}`);
+                    cartItem.remove();
+                    alert(data.message); 
+                    window.location.href = "/cart";
+                    
+                } else {
+                    alert('Error removing item from cart');
+                }
+            } catch (error) {
+                console.error('Error deleting item:', error);
+            }
+        }
+    </script>
+
+<script>
+    async function checkAvailability() {
+      const response = await fetch('/checkout', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+    
+      const data = await response.json();
+    
+      if (data.success) {
+          // If the checkout is successful, redirect or update the UI accordingly
+          alert(data.message); // Show success message
+          // Optionally, you can redirect to a confirmation page
+          window.location.href = "/order-success"; // Adjust this to your route
+      } else {
+          alert(data.message); // Show error message if any product is unavailable
+      }
+    }
+    </script>
+    
 
 </body>
-
 </html>
-

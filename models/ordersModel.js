@@ -1,109 +1,93 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const historySchema = new Schema({
-  orderToken:{
-    type:String
-  },
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true, // Orders should always belong to a user
-  },
-  order: {
-    type: Schema.Types.ObjectId,
-    ref: "Order",
-    required: true, // Orders should always belong to a user
-  },
-  // paymentId: {
-  //   type: String,
-  //   required: true, // Payment ID is required to track payment transactions
-  // },
-  status: {
-    type: String,
-    default:"arrived"
-  },
-  shop: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Shop', // Reference to the shop where the order was placed
+const orderSchema = new Schema({
+  orderToken: {
+    type: String, // Common token for all products in the same order
     required: true
   },
-  refundStatus: { 
-    type: String, 
-    default: "No Refund" 
-},
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  isDelivered: {
-    type: Boolean,
-    default: false,
-    expires: '30d'
-  },
-});
-
-const orderSchema = new Schema({
-  orderToken:{
-    type:String
-  },
   user: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true, // Orders should always belong to a user
+    type: Schema.Types.ObjectId, // Reference to the user who placed the order
+    ref: 'User',
+    required: true
   },
-  cart: {
-    totalQty: {
-      type: Number,
-      required: true,
-      default: 0,
+  shops: [{
+    shopId: {
+      type: Schema.Types.ObjectId, // Reference to each shop
+      ref: 'Shop',
+      required: true
     },
-    totalCost: {
-      type: Number,
-      required: true,
-      default: 0,
+    status: {
+      type: String,
+      enum: ['arrived', 'preparing', 'cancelled','ready', 'delivered'], // Status per shop
+      default: 'arrived'
     },
-    items: [
-      {
-        productId: {
-          type: Schema.Types.ObjectId,
-          ref: "Product",
-          required: true, // Every cart item must have a product
-        },
-        shop: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Shop', // Reference to the shop where the order was placed
-          required: true
-        },
-        qty: {
-          type: Number,
-          required: true,
-          default: 1, // Default to 1, as an item should at least have a quantity of 1
-        },
-        status: {
-          type: String,
-          default:"arrived"
-        },
-        isDelivered: {
-          type: Boolean,
-          default: false,
-          expires: '1d'
-        },
-
+    cancelReason: {
+      type: String, // Store the reason if a shop cancels the order
+      default: null
+    },
+    products: [{
+      productId: {
+        type: Schema.Types.ObjectId, // Reference to each product from the shop
+        ref: 'Product',
+        required: true
       },
-    ],
+      quantity: {
+        type: Number,
+        required: true
+      },
+      price: {
+        type: Number,
+        required: true
+      },
+    }],
+    deliveredAt: {
+      type: Date // Date the entire order is marked as delivered (if needed)
+    },  
+    totalQuantity: {
+      type: Number, // Total quantity of all products in the order
+      // required: true
+    },
+    totalPrice: {
+      type: Number, // Total price of all products in the order
+      // required: true
+    },
+  }],
+  totalQuantity: {
+    type: Number, // Total quantity of all products in the order
+    required: true
   },
-  // paymentId: {
-  //   type: String,
-  //   required: true, // Payment ID is required to track payment transactions
-  // },
- 
+  totalPrice: {
+    type: Number, // Total price of all products in the order
+    required: true
+  },
   createdAt: {
     type: Date,
-    default: Date.now,
-    index: { expires: '30d' }
+    default: Date.now
   },
-   history: [historySchema]
+
 });
 
-module.exports = mongoose.model("Order", orderSchema);
+// Pre-save hook to automatically calculate total quantity and price
+orderSchema.pre('save', function(next) {
+  const order = this;
+
+  let totalQuantity = 0;
+  let totalPrice = 0;
+
+  order.shops.forEach(shop => {
+    shop.products.forEach(product => {
+      totalQuantity += product.quantity;
+      totalPrice += product.price * product.quantity;
+    });
+  });
+
+  order.totalQuantity = totalQuantity;
+  order.totalPrice = totalPrice;
+
+  next();
+});
+orderSchema.index({ createdAt: 1 }, { expireAfterSeconds: 24 * 60 * 60 }); 
+const Order = mongoose.model('Order', orderSchema);
+
+module.exports = Order;

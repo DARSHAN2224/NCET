@@ -14,108 +14,95 @@
         <section class="orders-section" id="arrivedOrders">
             <h2>Arrived Orders</h2>
             <%
-            if(arrivedOrders.length>0)
-            {
-               for(let i=0;i< arrivedOrders.length; i++){ %>
+            if(arrivedOrders.length>0) {
+               for(let i=0; i< arrivedOrders.length; i++){ %>
             <div class="orders-list" id="arrivedList">
                     <h3>Order Token: <%= arrivedOrders[i].orderToken %></h3>
-                    <% arrivedOrders[i].cart.items.forEach(function(item) { %>
-                        <tr>
-                            <td>Name:<%= item.productId.name %></td> <br><br>
-                            <td>Quantity:<%= item.qty %></td><br><br>
-                            <td>Price:<%= item.productId.price %></td><br><br>
-                            <td>Status:<%= item.status %></td><br><br>
-                        </tr>
-                        </tr>
-                    <% }); %>
-                    <p>Total Quantity: <%= arrivedOrders[i].cart.totalQty %></p>
-                    <p>Total Cost: ₹<%= arrivedOrders[i].cart.totalCost %></p>
-                    <div class="order-actions">
+                    <% arrivedOrders[i].shops.forEach(function(shop) { %>
+                          <% shop.products.forEach(function(item) { %>
+                            <tr>
+                              <td>Name: <%= item.productId.name %></td><br><br>
+                              <td>Quantity: <%= item.quantity %></td><br><br>
+                              <td>Price: <%= item.price %></td><br><br>
+                            </tr>
+                          <% }) %>
+                          <td>Status:<%=shop.status %></td><br><br>
+                          <p>Total Quantity: <%= shop.totalQuantity %></p>
+                          <p>Total Cost: ₹<%= shop.totalPrice %></p>
+                         
+                      <% }) %>
+                      <div class="order-actions">
                         <button class="accept-order" style="cursor: pointer;" data-order-id="<%= arrivedOrders[i]._id %>">Accept</button>
                         <button class="cancel-order" style="cursor: pointer;" data-order-id="<%= arrivedOrders[i]._id %>">Cancel</button>
                     </div>
-                    
+                  
             </div>
             <% }
-        }
-        else{ %>
+            } else { %>
            <td colspan="6"> Product Not Found</td>
-        <%
-             }
-        %> 
-            <div class="status-box" id="arrivedStatus">Arrived</div>
-        </section>
+            <% } %> 
+            <div class="status-box" id="arrivedStatus">Arrived Orders: <span id="arrivedCount"><%= arrivedOrders.length %></span></div>        </section>
         
         <section class="orders-section" id="processingOrders">
             <h2>Processing Orders</h2>
             <%
-            if(processingOrders.length>0)
-            {
-               for(let i=0;i< processingOrders.length; i++){ %>
+            if(processingOrders.length>0) {
+               for(let i=0; i< processingOrders.length; i++){ %>
             <div class="orders-list" id="processingList">
                 <h3>Order Token: <%= processingOrders[i].orderToken %></h3>
-                    <% processingOrders[i].cart.items.forEach(function(item) { %>
-                        <tr>
-                            <td>Name:<%= item.productId.name %></td> <br><br>
-                            <td>Quantity:<%= item.qty %></td> <br><br>
-                            <td>Price:<%= item.productId.price %></td> <br><br>
-                            <td>Status:<%= item.status %></td> <br><br>
-                        </tr>
-                        <p>Total Quantity: <%= processingOrders[i].cart.totalQty %></p>
-                        <p>Total Cost: ₹<%= processingOrders[i].cart.totalCost %></p>
-                    <% }); %>
-                    <div class="order-actions">
-                        <button class="process-order" style="cursor: pointer;" data-order-id="<%= processingOrders[i]._id %>">Process</button>
-                        <button class="cancel-order" style="cursor: pointer;" data-order-id="<%= processingOrders[i]._id %>">Cancel</button>
-                    </div>
-                    
+                <% processingOrders[i].shops.forEach(function(shop) { %>
+                    <% shop.products.forEach(function(item) { %>
+                      <tr>
+                        <td>Name: <%= item.productId.name %></td><br><br>
+                        <td>Quantity: <%= item.quantity %></td><br><br>
+                        <td>Price: <%= item.price %></td><br><br>
+                      </tr>
+                    <% }) %>
+                    <td>Status:<%=shop.status %></td><br><br>
+                    <p>Total Quantity: <%= shop.totalQuantity %></p>
+                    <p>Total Cost: ₹<%= shop.totalPrice %></p>
+                <% }) %>
+                <div class="order-actions">
+                    <button class="process-order" style="cursor: pointer;" data-order-id="<%= processingOrders[i]._id %>">Process</button>
+                    <button class="cancel-order" style="cursor: pointer;" data-order-id="<%= processingOrders[i]._id %>">Cancel</button>
+                </div>
             </div>
             <% }
-        }
-        else{ %>
+            } else { %>
            <td colspan="6"> Product Not Found</td>
-        <%
-             }
-        %> 
-        <div class="status-box" id="processingStatus">Processing</div>
-    
-        </section>
+            <% } %> 
+            <div class="status-box" id="processingStatus">Processing Orders: <span id="preparingCount"><%= processingOrders.length %></span></div>        </section>
         
         <section class="orders-section" id="readyOrders">
             <h2>Ready Orders</h2>
                 <%
-                if(readyOrders.length>0)
-                {
-                   for(let i=0;i< readyOrders.length; i++){ %>
+                if(readyOrders.length>0) {
+                   for(let i=0; i< readyOrders.length; i++){ %>
                     <div class="orders-list" id="readyList"></div>
                     <h3>Order Token: <%= readyOrders[i].orderToken %></h3>
-                    <% readyOrders[i].cart.items.forEach(function(item) { %>
-                        <tr>
-                            <td>Name:<%= item.productId.name %></td><br><br>
-                            <td>Quantity:<%= item.qty %></td><br><br>
-                            <td>Price:<%= item.productId.price %></td><br><br>
-                            <td>Status:<%= item.status %></td><br><br>
-                        </tr>
-                        </tr>
-                        <p>Total Quantity: <%= readyOrders[i].cart.totalQty %></p>
-                        <p>Total Cost: ₹<%= readyOrders[i].cart.totalCost %></p>
-                    <% }); %>
+                    <% readyOrders[i].shops.forEach(function(shop) { %>
+                        <% shop.products.forEach(function(item) { %>
+                          <tr>
+                            <td>Name: <%= item.productId.name %></td><br><br>
+                            <td>Quantity: <%= item.quantity %></td><br><br>
+                            <td>Price: <%= item.price %></td><br><br>
+                          </tr>
+                        <% }) %>
+                        <td>Status:<%=shop.status %></td><br><br>
+                        <p>Total Quantity: <%= shop.totalQuantity %></p>
+                        <p>Total Cost: ₹<%= shop.totalPrice %></p>
+                    <% }) %>
                     <div class="order-actions">
                         <button class="deliver-order" style="cursor: pointer;" data-order-id="<%= readyOrders[i]._id %>">Delivered</button>
                         <button class="cancel-order" style="cursor: pointer;" data-order-id="<%= readyOrders[i]._id %>">Cancel</button>
-                        <h3>Delivery Status: <%= readyOrders[i].isDelivered ? "Delivered" : "Pending" %></h3>
+                        <h3>Delivery Status: <%= readyOrders[i].shops.deliveredAt ? "Delivered" : "Pending" %></h3>
                     </div>
-                    
             </div>
             <% }
-        }
-        else{ %>
+            } else { %>
            <td colspan="6"> Product Not Found</td>
-     <%
-        }
-     %>  
-            <div class="status-box" id="readyStatus">Ready</div>
-        </section>
+            <% } %>  
+            <div class="status-box" id="readyStatus">Ready Orders: <span id="readyCount"><%= readyOrders.length %></span></div>        </section>
     </main>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -140,9 +127,18 @@
     
             // Function to handle cancel order
             async function cancelOrder(orderId) {
+                const cancelReason = prompt('Please enter the reason for cancellation:');
+                if (cancelReason === null || cancelReason.trim() === '') {
+                    alert('Cancellation reason is required!');
+                    return;
+                }
                 try {
                     const response = await fetch(`/seller/orders/cancel/${orderId}`, {
                         method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ cancelReason }),
                     });
                     const result = await response.json();
                     if (result.success) {
@@ -221,6 +217,8 @@
                 deliverOrder(orderId);
             });
         });
-    </script>    
+    </script>   
+
+
 </body>
 </html>

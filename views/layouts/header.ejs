@@ -15,16 +15,36 @@
         <nav>
             <ul> 
                 <li><a href="/shops">Shops</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="/login">Login/Signup &#9662;</a></li>
+                <li><a href="#contact-details">Contact us</a></li>
+
+
                 <li class="dropdown">
-                    <a href="#" class="dropbtn">Profile &#9662;</a>
+                    <a  class="dropbtn">Orders &#9662;</a>
                     <div class="dropdown-content">
-                        <a href="#">View Profile</a>
-                        <a href="#">Edit Profile</a>
-                        <a href="/logout">Logout</a>
+                       
+                            <a href="/orders">Orders</a>
+                            <a href="/ordersHistory">Orders History</a>
+                
                     </div>
                 </li>
+
+
+                <li class="dropdown">
+                    <a  class="dropbtn">Login &#9662;</a>
+                    <div class="dropdown-content">
+                        <a href="/login"><%= user.name || Login / Signup%></a>
+                        <%if(user){%>
+                        <a href="/viewProfile">View Profile</a>
+                        <a href="/logout">Logout</a>
+                        <%}%>
+                    </div>
+                </li>
+                <button class="cart-btn" aria-label="Cart">
+                    <a href="/cart"> 
+                      <span class="cart-counts" id="cart-count">0</span>
+                      <ion-icon name="cart-outline"></ion-icon>
+                    </a>
+                </button>
             </ul>
         </nav>
     </header>

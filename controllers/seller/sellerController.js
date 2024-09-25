@@ -4,6 +4,8 @@ const product = require("../../models/productsModel");
 const Shop = require("../../models/shopModel");
 const offer = require("../../models/offersModel");
 const Order = require("../../models/ordersModel");
+const OrderHistory = require("../../models/historyModel");
+const TopProducts = require("../../models/topProducts");
 const bcrypt = require("bcrypt");
 const fs = require('fs');
 const path = require('path');
@@ -160,56 +162,80 @@ const SellerForm=async (req,res) => {
 const loadHome=async (req, res) => {
   try {
     // const {_id}=req.user;
-    const shop=req.session.shopData
-   const productCount= await product.countDocuments({shopId:shop._id});
-   const offerCount= await offer.countDocuments({shopId:shop._id});
+    const shop = req.cookies.shopData||req.session.shopData;   
+    const productCount= await product.countDocuments({shopId:shop._id});
+    const offerCount= await offer.countDocuments({shopId:shop._id});
+    const orderCount= await Order.countDocuments({
+      "shops.shopId": shop._id,  // Match the shop ID in the shops array
+      "shops.status": { $in: ['arrived', 'preparing', 'ready'] } // Fetch orders with these statuses
+    })
+      .populate('shops.products.productId') // Populate productId in shops.products
+      .populate('user');
     const msg1 = req.flash('msg');
-    res.render('seller/home',{msg1,productCount,offerCount});
+    res.render('seller/home',{msg1,productCount,offerCount,shop,orderCount});
   } catch (error) {
     console.log("nice 10",error.message);  }
  
 }
 
 
-const loadOrders=async (req,res) => {
-
+const loadOrders = async (req, res) => {
   try {
-    const shopId=req.session.shopData || req.cookies.shopData;
-    const arrivedOrders = await Order.find({ 
-      "cart.items.shop": shopId._id,  // Match the shop ID in the cart items
-      "cart.items.status": "arrived"  // Only show orders with "arrived" status
-    }).populate('cart.items.productId').populate('user');   
+    const shopId = req.session.shopData || req.cookies.shopData;
 
+    // Fetch orders that contain the seller's shop and the desired statuses
+    const orders = await Order.find({
+      "shops.shopId": shopId._id,  // Match the shop ID in the shops array
+      "shops.status": { $in: ['arrived', 'preparing', 'ready'] } // Fetch orders with these statuses
+    })
+      .populate('shops.products.productId') // Populate productId in shops.products
+      .populate('shops.shopId'); // Populate user
 
-     const processingOrders =  await Order.find({ 
-      "cart.items.shop": shopId._id,  // Match the shop ID in the cart items
-      "cart.items.status": "processing"  // Only show orders with "arrived" status
-    }).populate('cart.items.productId').populate('user');
-    
-    const readyOrders =  await Order.find({ 
-      "cart.items.shop": shopId._id,  // Match the shop ID in the cart items
-      "cart.items.status": "ready"  // Only show orders with "arrived" status
-    }).populate('cart.items.productId').populate('user');
-    // res.render('seller/orders');
-    res.render('seller/orders',{ arrivedOrders, processingOrders, readyOrders });
+    // Filter and map shops in each order to only include the seller's shop
+    const filteredOrders = orders.map(order => {
+      // Filter shops array to only include the seller's shop
+      const relevantShops = order.shops.filter(shop => shop.shopId.equals(shopId._id));
+      
+      // Return a new order object with only the filtered shops
+      return {
+        ...order.toObject(), // Convert order to a plain object to prevent issues
+        shops: relevantShops // Override the shops array with the filtered data
+      };
+    });
+
+    // Separate orders based on the shop's status
+    const arrivedOrders = filteredOrders.filter(order => 
+      order.shops.some(shop => shop.status === 'arrived')
+    );
+
+    const processingOrders = filteredOrders.filter(order => 
+      order.shops.some(shop => shop.status === 'preparing')
+    );
+
+    const readyOrders = filteredOrders.filter(order => 
+      order.shops.some(shop => shop.status === 'ready')
+    );
+
+    // Render the seller's order page with the filtered orders
+    res.render('seller/orders', { arrivedOrders, processingOrders, readyOrders });
   } catch (error) {
-    console.log("nice ",error.message);
+    console.log("Error loading orders: ", error.message);
+    res.status(500).send('Error loading orders');
   }
-}
+};
 
 // loading products page
 const loadProducts=async (req,res) => {
   try {
     // const {_id}=req.user
     // console.log(_id);
-    
     // const shops=await Shop.findOne({sellerId:_id});
-    const shops=req.session.shopData || req.cookies.shopData
+    const shop=req.session.shopData || req.cookies.shopData
     // console.log("shop data",shops);
-    const products=await product.find({shopId:shops._id});
+    const products=await product.find({shopId:shop._id});
     // console.log(products);
     
-    res.render('seller/products/products',{products});
+    res.render('seller/products/products',{products,shop});
   } catch (error) {
     console.log("nice1 ",error.message);  }
 }
@@ -238,7 +264,7 @@ const loadOffers=async (req,res) => {
 
     const offers=await offer.find({shopId:shop._id});
     // console.log(products);
-    res.render('seller/products/offers',{offers});
+    res.render('seller/products/offers',{offers,shop});
   } catch (error) {
     console.log("nice3 ",error.message);  }
 }
@@ -258,60 +284,21 @@ const loadAddOffers=async (req,res) => {
 
 
 
-// const addProducts = async (req, res) => {
-//   try {
-
-//       const { name,available,description,price,stock,discount ,sellerId} = req.body;
-//      let  isAvailable = available === "yes" ? true : false;
-//      if(stock===0){
-//       isAvailable=false;
-//      }
-//       const isExists = await product.findOne({  name: {
-//         $regex: name,
-//         $options: 'i'
-//     }})
-//       if (isExists) {
-//           return res.status(400).redirect(`/seller/addproducts?success=false&msg=Product%20Name%20already%20exists`)
-//       }
-//     let image;
-//      if (req.file) {
-//        image=req.file.filename
-//      }
-//       var obj = {
-//           name,
-//           description,
-//           price,
-//           available:isAvailable,
-//           stock,
-//           discount,
-//           image,
-//           sellerId
-//       }
-     
-//       // console.log(obj);
-//       const products = new product(obj)
-//       const newProduct = await products.save();
-//       req.flash("sucess", true);
-//       req.flash("msg", 'Product added!');
-//       return res.status(200).redirect("/seller/products")
-//   }
-//   catch (error) {
-//       return res.status(400).json({
-//           sucess: false,
-//           msg: error.message
-//       })
-//   }
-// }
-
 const addProducts = async (req, res) => {
   try {
     const { name, available, description, price, stock, discount, shopId } = req.body;
     // console.log(shopId);
     
     let isAvailable = available === "yes" ? true : false;
-    if (stock === null) {
+    if (stock === null || stock<=0) {
       isAvailable = false;
+      stockupdate=0
     }
+    else{
+      isAvailable = true;
+      stockupdate=stock;
+    }
+
 
     const shop = await Shop.findById(shopId);
     if (!shop) {
@@ -320,7 +307,7 @@ const addProducts = async (req, res) => {
     // console.log("shop",shop);
     
     const isExists = await product.findOne({
-      name: { $regex: name, $options: 'i' }
+      name: { $regex:`^${name}$`, $options: 'i' }
     });
     // console.log("product",isExists);
 
@@ -339,7 +326,7 @@ const addProducts = async (req, res) => {
       available: isAvailable,
       price:price|| 0,
       discount:discount|| 0,
-      stock:stock||0,
+      stock:stockupdate||0,
       image,
       shopId
     });
@@ -378,15 +365,25 @@ const loadEditProducts= async (req,res) => {
   } catch (error) {
     console.log("nice6 ",error.message);  }
 }
+
+
+
 const editProducts = async (req, res) => {
   try {
     
     const { id, name, description, available, price, stock, discount } = req.body;
     let isAvailable = available === "yes" ? true : false;
-    if (stock === 0) {
+    if (stock <= 0) {
       isAvailable = false;
+      stockupdate=0
     }
-
+    // if (stock<=0) {
+    //   stockupdate=0
+    // }
+    else{
+      isAvailable = true;
+      stockupdate=stock;
+    }
 
     let updateObj = {
       name,
@@ -394,7 +391,7 @@ const editProducts = async (req, res) => {
       available: isAvailable,
       price:price|| 0,
       discount:discount|| 0,
-      stock:stock||0,
+      stock:stockupdate||0,
        // New shopId if changed
     };
 
@@ -412,80 +409,6 @@ const editProducts = async (req, res) => {
     });
   }
 };
-// const editProducts = async (req, res) => {
-//   try {
-//     const { id,name,description,available,price,stock,discount} = req.body;
-//       // const {id,title,description}=req.body;
-//       const isAvailable = available === "yes" ? true : false
-//       if(stock===0){
-//         isAvailable=false;
-//        }
-   
-//       if (req.file) {
-//         var updateobj={
-//           name,
-//           description,
-//           available:isAvailable,
-//           price,
-//           discount,
-//           stock,
-//           image:req.file.filename
-//       }
-//         const updatedProduct=await product.findByIdAndUpdate({_id:id},{
-//           $set:updateobj
-//          },{new:true})
-//       }else{
-//         var updateobj={
-//           name,
-//           description,
-//           available,
-//           discount,
-//           price,
-//           stock
-//       }
-//         const updatedProduct=await product.findByIdAndUpdate({_id:id},{
-//           $set:updateobj
-//          },{new:true})
-//       }
-//       // req.flash("sucess", true);
-//       req.flash("msg", 'Product updated!');
-//       return res.status(200).redirect("/seller/products")
-//   }
-
-//   catch (error) {
-//       return res.status(400).json({
-//           sucess: false,
-//           msg: error.message
-//       })
-//   }
-// }
-
-
-// const  deleteProducts =async (req,res) => {
-//   try {
-//     const productData=await product.findOne({_id:req.params.id})
-//     // console.log(productData.image);
-//     if (productData.image) {
-//       const oldImagePath = path.join(__dirname, '../../public/Productimages',productData.image);
-//     // console.log(oldImagePath);
-//     if (fs.existsSync(oldImagePath)) {
-//       await fs.promises.unlink(oldImagePath);
-//       console.log('Old image deleted successfully');
-//     }
-//    }
-//   //  console.log("jii ",req.params.id);
-   
-//    await product.deleteOne({_id:req.params.id})
-//    req.flash('sucess', 'Your Data has been Sucessfully Deleted')
-//    res.redirect('/seller/products/')
-//   } catch (error) {
-//       return res.status(400).json({
-//         sucess: false,
-//         msg: error.message
-//     })
-//   }
-// }
-// adding a offer
 
 const deleteProducts = async (req, res) => {
   try {
@@ -539,8 +462,7 @@ const addOffers = async (req, res) => {
     
       const offers = new offer(obj)
 
-
-      const newOffer = await offers.save();
+      await offers.save();
       req.flash("msg", 'Product added!');
       return res.status(200).redirect("/seller/offers")
   }
@@ -576,6 +498,256 @@ const  deleteOffers =async (req,res) => {
     })
   }
 }
+
+
+const orderAccept= async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const shopIds = req.session.shopData || req.cookies.shopData;
+
+    console.log("Order ID: ${orderId}, Shop ID: ${shopId}");
+
+    // Find the order
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    // Find the shop in the order and update its status to 'processing'
+    const shop = order.shops.find(shop => shop.shopId.equals(shopIds._id));
+    if (!shop) return res.status(404).json({ success: false, message: 'Shop not found in order' });
+
+    shop.status = 'preparing';
+    await order.save();
+
+    // Optionally update history as a log of what happened
+    const history = await OrderHistory.findById(orderId); // Find the corresponding history
+    if (!history) return res.status(404).json({ success: false, message: 'Order history not found' });
+
+    const shophistory = history.shops.find(shop => shop.shopId.equals(shopIds._id));
+    if (!shophistory) return res.status(404).json({ success: false, message: 'Shop history not found in order' });
+
+    shophistory.status = 'preparing'; // Log the status change in history
+
+    await history.save();
+
+
+    res.json({ success: true, message: 'Order accepted', order });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
+
+const orderPrepare=async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const shopIds = req.session.shopData || req.cookies.shopData;
+
+    console.log(orderId,shopIds._id);
+      
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    const shop = order.shops.find(shop => shop.shopId.equals(shopIds._id));
+    if (!shop) return res.status(404).json({ success: false, message: 'Shop not found in order' });
+
+    shop.status = 'ready';
+    await order.save();
+
+    const history = await OrderHistory.findById(orderId);
+
+
+    if (!history) return res.status(404).json({ success: false, message: 'Order history not found' });
+
+    const shophistory = history.shops.find(shop => shop.shopId.equals(shopIds._id));
+    if (!shophistory) return res.status(404).json({ success: false, message: 'Shop history not found in order' });
+
+    shophistory.status = 'ready'; // Log the status change in history
+    
+    await history.save();
+    // Update history to reflect the state change
+
+    res.json({ success: true, message: 'Order is ready, collect your order', order });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
+
+
+
+const orderReady = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const shopIds = req.session.shopData || req.cookies.shopData;
+
+    // Find the order
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    // Find the shop in the order and update its status to 'delivered'
+    const shop = order.shops.find(shop => shop.shopId.equals(shopIds._id));
+    if (!shop) return res.status(404).json({ success: false, message: 'Shop not found in order' });
+
+    shop.status = 'delivered';
+    await order.save(); // Save the order after updating
+
+    // Optionally log the status change in history
+    const history = await OrderHistory.findById(orderId);
+
+    if (!history) return res.status(404).json({ success: false, message: 'Order history not found' });
+
+    const shophistory = history.shops.find(shop => shop.shopId.equals(shopIds._id));
+    if (!shophistory) return res.status(404).json({ success: false, message: 'Shop history not found in order' });
+
+    shophistory.status = 'delivered'; // Log the status change in history
+    
+    await history.save();
+
+    // Update the product count for the top products
+    for (const product of shop.products) {
+      await updateProductCount(product.productId, product.quantity);
+    }
+
+    res.json({ success: true, message: 'Order marked as delivered', order });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Function to update the count of products
+const updateProductCount = async (productId, quantity) => {
+  try {
+    const productCount = await TopProducts.findOne({ productId });
+
+    if (productCount) {
+      // If product already exists, increment the count
+      productCount.totalOrders += quantity;
+      productCount.lastUpdated = Date.now();
+      await productCount.save();
+    } else {
+      // If product doesn't exist, create a new entry
+      await TopProducts.create({
+        productId: productId,
+        totalOrders: quantity
+      });
+    }
+  } catch (error) {
+    console.error('Error updating product count:', error.message);
+  }
+};
+
+
+
+const orderCancel=async (req, res) => {
+  try {
+    const { orderId,  } = req.params;
+    const { cancelReason } = req.body;
+    const shopIds = req.session.shopData || req.cookies.shopData;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    const shop = order.shops.find(shop => shop.shopId.equals(shopIds._id));
+    if (!shop) return res.status(404).json({ success: false, message: 'Shop not found in order' });
+
+    shop.status = 'cancelled';
+    shop.cancelReason = cancelReason || 'No reason provided'; // Store the cancel reason
+    await order.save();
+
+    // Log the cancellation in history (optional)
+    const history = await OrderHistory.findById(orderId);
+    if (history) {
+      const shophistory = history.shops.find(shop => shop.shopId.equals(shopIds._id));
+      if (shophistory) {
+        shophistory.status = 'cancelled';
+        shophistory.cancelReason = cancelReason || 'No reason provided';
+        await history.save();
+      }
+    }
+
+    res.json({ success: true, message: 'Order cancelled', order });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
+
+
+
+const loadEditProfile=async (req, res) => {
+  try {
+    const shop = req.session.shopData || req.cookies.shopData;
+   // Get user ID from session
+   const sellerId=req.session.user._id
+      const user = await Shop.findById(shop._id); // Fetch user from the database
+
+      if (!user) {
+          return res.status(404).send('User not found');
+      }
+
+      res.render('seller/loadEditShop', { user ,sellerId}); // Render the edit profile EJS template with user data
+  } catch (error) {
+      console.error('Error fetching user for edit:', error);
+      res.status(500).send('Internal Server Error');
+  }
+}
+
+
+const updateEditProfile=async (req, res) => {
+  const { name, description,sellerId } = req.body; // Extract user data from request
+
+  try {
+    const shop = req.session.shopData || req.cookies.shopData;// Get user ID from session
+      const user = await Shop.findById(shop._id); // Fetch user from the database
+
+      if (!user) {
+          return res.status(404).send('User not found');
+      }
+
+      let images;
+      if (req.file) {
+        images = req.file.filename;
+        user.image=images
+      }
+
+
+      // Update user fields
+      user.name = name;
+      user.description = description; 
+      user.sellerId=   sellerId
+      
+      await user.save(); // Save updated user to the database
+      
+      // Optionally, update the session user data
+      res.cookie('shopData', user, { maxAge: 7200000 });
+      req.session.shopData = user;
+
+      res.redirect('/seller/home'); // Redirect back to the profile page after successful update
+  } catch (error) {
+      console.error('Error updating user profile:', error);
+      res.status(500).send('Internal Server Error');
+  }
+}
+
+const getCustomerOrdersHistory = async (req, res) => {
+  try {
+    const shop = req.cookies.shopData||req.session.shopData;   
+      
+      // Fetch orders for this user, populating shop and product details
+      const orders= await OrderHistory.find({
+        "shops.shopId": shop._id,  // Match the shop ID in the shops array
+        "shops.status": { $in: ['arrived', 'preparing', 'ready','cancelled','delivered'] } // Fetch orders with these statuses
+      })
+      .populate('shops.products.productId') // Populate productId in shops.products
+      .populate('shops.shopId');
+      
+      // Render the orders.ejs view with the fetched orders
+      res.render('seller/orderHistory', { orders});
+  } catch (err) {
+      console.error(err);
+      res.status(500).send('Server Error');
+  }
+};
+
+
+
 module.exports={
     loadLogin,
     loginSeller,
@@ -593,6 +765,14 @@ module.exports={
     addOffers,
     deleteOffers,
     SellerForm,
-    loadSellerForm
+    loadSellerForm,
+    orderAccept,
+    orderPrepare,
+    orderReady,
+    orderCancel,
+    loadEditProfile,
+  updateEditProfile,
+  getCustomerOrdersHistory
+
     
 }

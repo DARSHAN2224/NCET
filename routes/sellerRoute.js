@@ -6,7 +6,6 @@ const {islogin,islogout,onlySellerAccess,authenticateToken}=require('../middlewa
 const path = require('path');
 const multer=require('multer')
 const Order = require("../models/ordersModel");
-// const History = require("../models/historyModel");
 
 // const {authenticateToken} = require('../middlewares/authenticateToken');
 const csrfProtection = require('../middlewares/csrfProtection');
@@ -41,103 +40,50 @@ seller_router.get('/logout',islogin,authenticateToken,onlySellerAccess,seller_co
 // load home page for seller
 seller_router.get('/home', islogin,authenticateToken,onlySellerAccess,seller_controller.loadHome )
 
-//order page for seller
-seller_router.get('/orders',islogin,authenticateToken,onlySellerAccess,seller_controller.loadOrders)
+
 
 // seller products
 seller_router.get('/products',islogin,authenticateToken,onlySellerAccess,seller_controller.loadProducts)
+
 seller_router.get('/addproducts',islogin,authenticateToken,onlySellerAccess,seller_controller.loadAddProducts)
 seller_router.post('/addproducts',upload.single('image'),seller_controller.addProducts)
+
 seller_router.get('/editproducts',islogin,authenticateToken,onlySellerAccess,seller_controller.loadEditProducts)
 seller_router.post('/editproducts',upload.single('image'),seller_controller.editProducts)
+
 seller_router.post('/deleteproducts/:id',upload.single('image'),seller_controller.deleteProducts)
 
 //seller offers
 seller_router.get('/offers',islogin,authenticateToken,onlySellerAccess,seller_controller.loadOffers)
+
 seller_router.get('/addoffers',islogin,authenticateToken,onlySellerAccess,seller_controller.loadAddOffers)
 seller_router.post('/addoffers',upload.single('image'),seller_controller.addOffers)
+
 seller_router.post('/delete-offer/:id',upload.single('image'),seller_controller.deleteOffers)
 
 
-// seller_router.post('/orders/accept/:id', async (req, res) => {
-//     console.log(req.params.id);
-    
-//     const order = await Order.findById(req.params.id);
-//     order.cart.items.forEach(item => item.status = 'processing');
-//     await order.save();    
-//     res.redirect('/seller/orders');
-//   });
-  
-//   // Ready order (move to ready)
-//   seller_router.post('/orders/process/:id', async (req, res) => {
-//     const order = await Order.findById(req.params.id);
-//     order.cart.items.forEach(item => item.status = 'ready');
-//     await order.save();    
-//     res.redirect('/seller/orders');
-//   });
-//   seller_router.post('/orders/ready/:id', async (req, res)=> {
-    
-//     const updatedProduct = await Order.findByIdAndUpdate({_id:req.params.id}, { $set: {isDelivered:true} }, { new: true }) ;
-//      res.redirect('/seller/orders');
-//   });
-  
-//   // Cancel order
-//   seller_router.post('/orders/cancel/:id', async (req, res) => {
-//     await Order.findByIdAndDelete(req.params.id);   
-//      res.redirect('/seller/orders');
-//   });
-  // Accept order
-seller_router.post('/orders/accept/:id', async (req, res) => {
-    try {
-        const order = await Order.findById(req.params.id);
-        order.cart.items.forEach(item => item.status = 'processing');
-        await order.save();
-        res.json({ success: true, message: 'Order accepted', order });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
-});
+
+//order page for seller
+seller_router.get('/orders',islogin,authenticateToken,onlySellerAccess,seller_controller.loadOrders)
+
+seller_router.post('/orders/accept/:orderId',islogin,authenticateToken,onlySellerAccess,seller_controller.orderAccept);
 
 // Process order (move to ready)
-seller_router.post('/orders/process/:id', async (req, res) => {
-    try {
-        const order = await Order.findById(req.params.id);
-        order.cart.items.forEach(item => item.status = 'ready');
-        await order.save();
-        res.json({ success: true, message: 'Order is ready collect your order', order });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
-});
+seller_router.post('/orders/process/:orderId',islogin,authenticateToken,onlySellerAccess,seller_controller. orderPrepare);
 
-// Mark order as delivered
-seller_router.post('/orders/ready/:id', async (req, res) => {
-    try {
-        // const updatedOrder = await Order.findByIdAndUpdate(req.params.id, { $set: { isDelivered: true } }, { new: true });
-        const order = await Order.findById(req.params.id);
-        order.cart.items.forEach(item => item.isDelivered = true);
-        order.history.push({
-            action: "Order Delivered",
-            status: "Delivered",
-            note: "Order was delivered successfully.",
-          });
-      
-          await order.save();
-        res.json({ success: true, message: 'Order delivered', updatedOrder });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
-});
-
+// Mark order as ready
+seller_router.post('/orders/ready/:orderId', islogin,authenticateToken,onlySellerAccess,seller_controller.orderReady);
+  
 // Cancel order
-seller_router.post('/orders/cancel/:id', async (req, res) => {
-    try {
-        const order = await Order.findById(req.params.id);
-        order.cart.items.forEach(item => item.status = 'canceled');
-        await order.save();
-    } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
-});
+seller_router.post('/orders/cancel/:orderId', islogin,authenticateToken,onlySellerAccess,seller_controller.orderCancel);
+
+
+seller_router.get("/edit-profile",islogin,authenticateToken,onlySellerAccess,seller_controller.loadEditProfile)
+seller_router.post("/update-profile",upload.single('image'),seller_controller.updateEditProfile)
+
+seller_router.get("/ordersHistory",islogin,authenticateToken,onlySellerAccess,seller_controller.getCustomerOrdersHistory)
+
+
+
 
 module.exports  = seller_router;

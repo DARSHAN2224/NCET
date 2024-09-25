@@ -2,9 +2,13 @@
 
     <section id="search">
         <div class="search-box">
-            <input type="text" placeholder="Search for food, drinks...">
-            <span class="search-icon">&#x1F50D;</span>
-        </div>
+    <form action="/shops" method="GET">
+        <input type="text"  id="search-bar" placeholder="Search for food, drinks..." name="search">
+        <ul id="suggestions" style="border: 1px solid #ccc; display: none; position: absolute; background: white; list-style: none; padding: 0; width: 200px;"></ul>
+        <input type="submit" class="search-icon" value="&#x1F50D;">
+    </form>
+</div>
+
     </section>
     <section id="offers">
         <h2>Special Offers</h2>
@@ -31,16 +35,30 @@
         <h2>Best Selling</h2>
         <div class="swiper-container">
             <div class="swiper-wrapper">
+            <% if (topProducts.length > 0) { %>
+            <% topProducts.forEach((product, index) => { %>          
                 <div class="swiper-slide">
                     <div class="best-selling-card">
-                        <img src="best1.jpg" alt="Best Selling 1">
-                        <div class="best-selling-card-content">
-                            <h3>Best Seller 1</h3>
-                            <p>Description of Best Seller 1</p>
-                            <button class="add-to-cart-btn">Add to Cart</button>
+                                <img src="/Productimages/<%= product.productId.image%>" alt="Best Selling 1">
+                                <div class="best-selling-card-content">
+                                    <h3>Best Seller<%= index + 1 %></h3>
+                                    <p><%= product.productId.name %></p>
+                                    <p><%= product.productId.price %></p>
+                                    <p><%= product.productId.available %></p>
+                                    <p><%= product.productId.shopId.name %></p>
+                                    <p><%= product.totalOrders %></p>
+                                    <button class="add-to-cart-btn">Add to Cart</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="3">No products found.</td>
+                            </tr>
+                        <% } %>
+
+                  
             <!-- Pagination (dots) -->
             <div class="swiper-pagination"></div>
         </div>
